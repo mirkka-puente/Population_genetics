@@ -87,4 +87,25 @@ mon.tab <- mlg.table(monpop, plot = FALSE)
 min_sample <- min(rowSums(mon.tab))
 rarecurve(mon.tab, sample = min_sample, xlab = "Sample Size", ylab = "Expected MLGs")
 title("Rarefaction of Fruit Rot and Blossom Blight")
+#we can do this graph or the table with monpop_diversity
 
+#LINKAGE DESEQUILIBRIUM
+# P >= 0.01 --> accept Ho ==> sexual reproduction
+# P < 0.01 --> Reject Ho ==> asexual 
+
+library("magrittr")
+MX <- popsub(Pinf, "North America")
+ia(MX, sample = 999)
+
+MX %>% clonecorrect(strata= ~Continent/Country) %>% ia(sample = 999)
+MX
+#p-vaue increased, now it is sexual reproduction
+
+
+SA <- popsub(Pinf, "South America")
+ia(SA, sample = 999)
+
+#Let's see if it is not a result from clonality
+SA %>% clonecorrect(strata= ~Continent/Country) %>% ia(sample=999)
+# It's not a product of clonality because the analysis kept similar p-values
+#since p-value < 0.01 then it is asexual reproduction for sure. 
