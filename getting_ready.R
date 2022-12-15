@@ -109,3 +109,80 @@ ia(SA, sample = 999)
 SA %>% clonecorrect(strata= ~Continent/Country) %>% ia(sample=999)
 # It's not a product of clonality because the analysis kept similar p-values
 #since p-value < 0.01 then it is asexual reproduction for sure. 
+
+
+#Population structure (compare values between populations)
+library("mmod")
+
+#Now we will use Hendrick’s standardized GST to assess population 
+#structure among these populations
+
+Gst_Hedrick(nancycats)
+
+#Genetic distance calculation
+library("ape") # To visualize the tree using the "nj" function
+library("magrittr")
+data(microbov)
+set.seed(10)
+ten_samples <- sample(nInd(microbov), 10)
+mic10       <- microbov[ten_samples]
+(micdist    <- provesti.dist(mic10))
+
+#create a neighbor-joining tree.
+
+theTree <- micdist %>%
+  nj() %>%    # calculate neighbor-joining tree
+  ladderize() # organize branches by clade
+plot(theTree)
+add.scale.bar(length = 0.05) # add a scale bar showing 5% difference.
+
+set.seed(999)
+aboot(mic10, dist = provesti.dist, sample = 200, tree = "nj", 
+      cutoff = 50, quiet = TRUE)
+
+strata(microbov) <- data.frame(other(microbov))
+microbov
+
+nameStrata(microbov) <- ~Country/Breed/Species
+
+# Analysis
+set.seed(999)
+microbov %>%
+  genind2genpop(pop = ~Country/Breed) %>%
+  aboot(cutoff = 50, quiet = TRUE, sample = 1000, distance = nei.dist)
+
+
+#K-means hierarchical clustering
+#Software figures it out if the groups are close related or not
+MX <- popsub(Pinf, "North America")
+MXclust <- find.clusters(MX)
+MXclust
+
+
+SA <- popsub(Pinf, "South America")
+SAclust <- find.clusters(SA)
+SAclust
+
+#TREE ----
+pinfreps <- c(2, 2, 6, 2, 2, 2, 2, 2, 3, 3, 2)
+#11 loci - need to include for the software analysis
+MXtree <- bruvo.boot(MX, replen = pinfreps, cutoff = 50, quiet = TRUE)
+SAtree <- bruvo.boot(SA, replen = pinfreps, cutoff = 50, quiet = TRUE)
+
+
+#Let’s see how the groups we found with the clustering algorithm match up:
+library("ape")
+cols <- rainbow(4)
+plot.phylo(MXtree, cex = 0.8, font = 2, adj = 0, tip.color = cols[MXclust$grp],
+           label.offset = 0.0125)
+nodelabels(MXtree$node.label, adj = c(1.3, -0.5), frame = "n", cex = 0.8,
+           font = 3, xpd = TRUE)
+axisPhylo(3)
+
+#SA
+plot.phylo(SAtree, cex = 0.8, font = 2, adj = 0, tip.color = cols[SAclust$grp],
+           label.offset = 0.0125)
+nodelabels(SAtree$node.label, adj = c(1.3, -0.5), frame = "n", cex = 0.8,
+           font = 3, xpd = TRUE)
+axisPhylo(3)
+#Everything clusters together nicely, further supporting a non-panmictic population.
