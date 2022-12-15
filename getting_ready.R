@@ -57,3 +57,34 @@ monpop # After (Three distinct levels)
 
 mcc_TY <- clonecorrect(monpop, strata = ~Tree/Year, keep = 1:2)
 mcc_TY
+
+# Set the original data to the same strata
+setPop(monpop) <- ~Tree/Year
+
+#Looking at the difference of cloned corrected data and uncorrected data.
+cc <- locus_table(mcc_TY, info = FALSE)
+mp <- locus_table(monpop, info = FALSE)
+mp - cc
+
+#Graph
+locus_diff <- mp - cc
+
+# Note that I need to select the column containing Simpson's Index. That's
+# labeled as "1-D".
+barplot(locus_diff[, "1-D"], ylab = "Change in Simpson's Index", xlab = "Locus",
+        main = "Comparison of clone-corrected vs. uncorrected data")
+#the clone corrected have higher gene diversity values (the differences were more negative)
+#We are removing clones so the data is more accuarate
+
+#Genotypic richness
+setPop(monpop) <- ~Symptom
+monpop
+(monpop_diversity <- poppr(monpop))
+#BB has a higher diversity, sexual and principal cause infection
+
+library("vegan")
+mon.tab <- mlg.table(monpop, plot = FALSE)
+min_sample <- min(rowSums(mon.tab))
+rarecurve(mon.tab, sample = min_sample, xlab = "Sample Size", ylab = "Expected MLGs")
+title("Rarefaction of Fruit Rot and Blossom Blight")
+
