@@ -178,6 +178,7 @@ plot.phylo(MXtree, cex = 0.8, font = 2, adj = 0, tip.color = cols[MXclust$grp],
 nodelabels(MXtree$node.label, adj = c(1.3, -0.5), frame = "n", cex = 0.8,
            font = 3, xpd = TRUE)
 axisPhylo(3)
+#more distance = more different between groups
 
 #SA
 plot.phylo(SAtree, cex = 0.8, font = 2, adj = 0, tip.color = cols[SAclust$grp],
