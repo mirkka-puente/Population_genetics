@@ -187,3 +187,30 @@ nodelabels(SAtree$node.label, adj = c(1.3, -0.5), frame = "n", cex = 0.8,
            font = 3, xpd = TRUE)
 axisPhylo(3)
 #Everything clusters together nicely, further supporting a non-panmictic population.
+
+#Interactive viewer 
+imsn()
+library("poppr")
+library("magrittr")
+data(monpop)
+splitStrata(monpop) <- ~Tree/Year/Symptom
+summary(monpop)
+
+t26 <- monpop %>% setPop(~Tree) %>% popsub("26") %>% setPop(~Year/Symptom)
+t26
+# Set up our repeat lengths and populations to analyze
+reps <- c(CHMFc4 = 7, CHMFc5 = 2, CHMFc12 = 4,
+          SEA = 4, SED = 4, SEE = 2, SEG = 6,
+          SEI = 3, SEL = 4, SEN = 2,
+          SEP = 4, SEQ = 2, SER = 4)
+
+sub9 <- c("9_BB", "9_FR")
+
+# Calculate the MSN
+t26.9msn <- bruvo.msn(t26, replen = reps, sublist = sub9, showplot = FALSE)
+
+# Visualize the network
+set.seed(120)
+plot_poppr_msn(t26, t26.9msn, inds = "none", palette = cm.colors, nodebase = 1.25)
+args(plot_poppr_msn)
+
